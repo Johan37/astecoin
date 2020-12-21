@@ -34,7 +34,7 @@ class BlockChain(object):
     def print_chain(self):
         ''' Print the blockchain '''
         for i in range(len(self.chain)):
-            print(self.chain[i].get_json())
+            print(json.dumps(self.chain[i].get_json(), indent=4, sort_keys=True))
 
     def last_block(self):
         ''' Return latest block in the Blockchain '''
@@ -79,6 +79,24 @@ class BlockChain(object):
         self.add_block(new_block, proof)
         self.unconfirmed_transactions = []
         return new_block.index
+    
+    def chain_to_file(self):
+        ''' Save blockchain to file '''
+        chain_dict = []
+        for i in range(len(self.chain)):
+            chain_dict.append(self.chain[i].get_json())
+
+        with open('chain.json', 'w') as json_file:
+              json.dump(chain_dict, json_file)
+
+    def load_chain(self):
+        with open('chain.json') as f:
+              data = json.load(f)
+
+        return data
+
+      # Output: {'name': 'BoVb', 'languages': ['English', 'Fench']}
+      # print(data)
 
 
 blockchain = BlockChain()
@@ -86,4 +104,7 @@ blockchain.add_new_transaction("gold")
 blockchain.mine()
 
 blockchain.print_chain()
+blockchain.chain_to_file()
+print(blockchain.load_chain())
+
 

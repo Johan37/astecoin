@@ -36,5 +36,5 @@ class Block(object):
                 'hash': self.hash
                 }
 
-        block_json = json.dumps(block_dict, indent=4, sort_keys=True)
-        return block_json
+        #block_json = json.dumps(block_dict, indent=4, sort_keys=True)
+        return block_dict
