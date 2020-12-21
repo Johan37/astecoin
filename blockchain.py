@@ -31,6 +31,11 @@ class BlockChain(object):
 
         return computed_hash
 
+    def print_chain(self):
+        ''' Print the blockchain '''
+        for i in range(len(self.chain)):
+            print(self.chain[i].get_json())
+
     def last_block(self):
         ''' Return latest block in the Blockchain '''
         return self.chain[-1]
@@ -80,6 +85,5 @@ blockchain = BlockChain()
 blockchain.add_new_transaction("gold")
 blockchain.mine()
 
-print(blockchain.chain[0])
-print(blockchain.last_block().transactions)
+blockchain.print_chain()
 

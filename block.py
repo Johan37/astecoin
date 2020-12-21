@@ -23,3 +23,18 @@ class Block(object):
         '''
         block_string = json.dumps(self.__dict__, sort_keys=True)
         return sha256(block_string.encode()).hexdigest()
+
+    def get_json(self):
+        '''
+        Return the json representation of the block
+        '''
+        block_dict = {
+                'index': self.index,
+                'timestamp': self.timestamp,
+                'transactins': self.transactions,
+                'previous_hash': self.previous_hash,
+                'hash': self.hash
+                }
+
+        block_json = json.dumps(block_dict, indent=4, sort_keys=True)
+        return block_json
