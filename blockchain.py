@@ -1,6 +1,7 @@
 import block
 import json
 
+
 class BlockChain(object):
     # Difficulty of PoW algorithm
     difficulty = 2
@@ -94,17 +95,5 @@ class BlockChain(object):
               data = json.load(f)
 
         return data
-
-      # Output: {'name': 'BoVb', 'languages': ['English', 'Fench']}
-      # print(data)
-
-
-blockchain = BlockChain()
-blockchain.add_new_transaction("gold")
-blockchain.mine()
-
-blockchain.print_chain()
-blockchain.chain_to_file()
-print(blockchain.load_chain())
 
 

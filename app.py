@@ -11,6 +11,8 @@ app = Flask(__name__)
 #Initialize a blockchain object
 blockchain = BlockChain()
 
+# Contains the host addresses of other participating members of the network
+peers = set()
 
 @app.route('/new_transaction', methods=['POST'])
 def new_transaction():
@@ -46,4 +48,47 @@ def mine_unconfirmed_transactions():
 @app.route('/pending_tx')
 def get_pending_tx():
     return json.dumps(blockchain.unconfirmed_transactions)
+
+@app.route('/register_node', methods=['POST'])
+def register_new_peers():
+    # Host address to the peers
+    node_adress = requst.get_json()["node_adress"]
+
+    if not node_adress:
+        return "Invalid data", 400
+
+    peers.add(node_adress)
+
+    return get_chain()
+
+@app.route('/register_with', methods=['POST'])
+def register_with_existing_node():
+    '''
+    Internally calls the register_node endpoint to
+    register current node wih the remote node specified in the
+    request, and sync the blockchain as well with the remote node.
+    '''
+    node_adress = requst.get_json()["node_adress"]
+
+    if not node_adress:
+        return "Invalid data", 400
+
+    data = {"node_adress": requst.host_url}
+    headers = {'Content-Type': "application/json"}
+
+    # Make request to regiseter with remote node
+    response = requests.post(node_adress + "register_node",
+            data=json.dumps(data), headers=headers)
+
+    if response.status_code == 200:
+        global blockchain
+        global peers
+        # update chain and peers
+        chain_dump = response.json()['chain']
+        blockchain = create_chain_from_dump(chain_dump)
+        peers.update(response.json()['peers'])
+        return "Register successful", 200
+    else:
+        return response.content, response.status_code
+
 
