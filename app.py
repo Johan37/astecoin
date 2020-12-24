@@ -91,4 +91,18 @@ def register_with_existing_node():
     else:
         return response.content, response.status_code
 
-
+def create_chain_from_dump(chain_dump):
+    blockchain = Blockchain()
+    for idx, block_data in enumerate(chain_dump):
+        block = Block(block_data["index"],
+                      block_data["transactions"],
+                      block_data["timestamp"],
+                      block_data["previous_hash"])
+        proof = block_data['hash']
+        if idx > 0:
+            added = blockchain.add_block(block, proof)
+            if not added:
+                raise Exception("The chain dump is tampered")
+        else:
+            blockchain.chain.append(block)
+    return blockchain

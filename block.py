@@ -4,7 +4,7 @@ from hashlib import sha256
 
 class Block(object):
     
-    def __init__(self, index, transactions, previous_hash):
+    def __init__(self, index, transactions, timestamp, previous_hash):
         '''
         Constructor for Block class.
         :param index: ID of the block.
@@ -14,7 +14,7 @@ class Block(object):
         self.index = index
         self.transactions = transactions
         self.previous_hash = previous_hash
-        self.timestamp = time.time()
+        self.timestamp = timestamp
 
     def compute_hash(self):
         '''

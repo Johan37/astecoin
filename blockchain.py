@@ -1,6 +1,6 @@
 import block
 import json
-
+import time
 
 class BlockChain(object):
     # Difficulty of PoW algorithm
@@ -14,7 +14,7 @@ class BlockChain(object):
 
     def build_genesis(self):
         ''' Create genesis block '''
-        genesis_block = block.Block(0, [], "0")
+        genesis_block = block.Block(0, [], time.time(), "0")
         genesis_block.hash = genesis_block.compute_hash()
         self.chain.append(genesis_block)
 
@@ -74,6 +74,7 @@ class BlockChain(object):
 
         new_block = block.Block(index = latest_block.index + 1,
                           transactions = self.unconfirmed_transactions,
+                          timestamp = time.time(),
                           previous_hash = latest_block.hash)
 
         proof = self.proof_of_work(new_block)
