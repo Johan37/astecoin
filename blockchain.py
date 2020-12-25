@@ -97,4 +97,20 @@ class BlockChain(object):
 
         return data
 
+    def check_chain_validity(cls, chain):
+        ''' Check if the entire blockchain is valid '''
+        previous_hash = '0'
+
+        for block in chain:
+            block_hash = block.hash
+            #Remove the hash field to recompute hash again
+            delattr(block, "hash")
+
+            if not cls.is_valid_proof(block, block.hash) or \
+                    previous_hash != block.previous_hash:
+                return False
+
+            block.hash, previous_hash = block_hash, block_hash
+
+        return True
 
