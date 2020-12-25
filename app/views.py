@@ -34,7 +34,7 @@ def submit_textarea():
     post_content = request.form["content"]
     author = request.form["author"]
 
-    post_object {
+    post_object = {
             'author': author,
             'content': post_content
             }
