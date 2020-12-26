@@ -4,6 +4,7 @@ import json
 import time
 
 from blockchain import BlockChain
+from block import Block
 
 # Initialize flask aplication
 app = Flask(__name__)
@@ -35,8 +36,9 @@ def get_chain():
     chain_data = []
     for block in blockchain.chain:
         chain_data.append(block.__dict__)
-    return json.dumps({"lenght": len(chain_data),
-                        "chain": chain_data})
+    return json.dumps({"length": len(chain_data),
+                        "chain": chain_data,
+                        "peers": list(peers)})
 
 @app.route('/mine', methods=['GET'])
 def mine_unconfirmed_transactions():
@@ -58,12 +60,12 @@ def get_pending_tx():
 @app.route('/register_node', methods=['POST'])
 def register_new_peers():
     # Host address to the peers
-    node_adress = requst.get_json()["node_adress"]
+    node_address = request.get_json()["node_address"]
 
-    if not node_adress:
+    if not node_address:
         return "Invalid data", 400
 
-    peers.add(node_adress)
+    peers.add(node_address)
 
     return get_chain()
 
@@ -74,16 +76,16 @@ def register_with_existing_node():
     register current node wih the remote node specified in the
     request, and sync the blockchain as well with the remote node.
     '''
-    node_adress = requst.get_json()["node_adress"]
+    node_adress = request.get_json()["node_address"]
 
     if not node_adress:
         return "Invalid data", 400
 
-    data = {"node_adress": requst.host_url}
+    data = {"node_address": request.host_url}
     headers = {'Content-Type': "application/json"}
 
     # Make request to regiseter with remote node
-    response = requests.post(node_adress + "register_node",
+    response = requests.post(node_adress + "/register_node",
             data=json.dumps(data), headers=headers)
 
     if response.status_code == 200:
@@ -92,6 +94,7 @@ def register_with_existing_node():
         # update chain and peers
         chain_dump = response.json()['chain']
         blockchain = create_chain_from_dump(chain_dump)
+        print(response.json())
         peers.update(response.json()['peers'])
         return "Register successful", 200
     else:
@@ -105,7 +108,8 @@ def add_peer_block():
     block = Block(block_data["index"],
                   block_data["transactions"],
                   block_data["timestamp"],
-                  block_data["previous_hash"])
+                  block_data["previous_hash"],
+                  block_data["nonce"])
 
     proof = block_data['hash']
     added = blockchain.add_block(block, proof)
@@ -119,15 +123,19 @@ def announce_new_block(block):
     ''' Announce a new mined block to all peers to the network '''
     for peer in peers:
         url = "{}add_block".format(peer)
-        requests.post(url, data=json.dumps(block.__dict__, sort_keys=True))
+        headers = {'Content-Type': "application/json"}
+        requests.post(url,
+                      data=json.dumps(block.__dict__, sort_keys=True),
+                      headers=headers)
 
 def create_chain_from_dump(chain_dump):
-    blockchain = Blockchain()
+    blockchain = BlockChain()
     for idx, block_data in enumerate(chain_dump):
         block = Block(block_data["index"],
                       block_data["transactions"],
                       block_data["timestamp"],
-                      block_data["previous_hash"])
+                      block_data["previous_hash"],
+                      block_data["nonce"])
         proof = block_data['hash']
         if idx > 0:
             added = blockchain.add_block(block, proof)
@@ -149,7 +157,7 @@ def consensus():
     current_len = len(blockchain.chain)
 
     for node in peers:
-        response = requests.get('{}/chain'.format(node))
+        response = requests.get('{}chain'.format(node))
         length = response.json()['length']
         chain = response.json()['chain']
         if length > current_len and blockchain.check_chain_validity(chain):
