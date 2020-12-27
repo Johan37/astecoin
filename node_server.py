@@ -11,6 +11,7 @@ app = Flask(__name__)
 
 #Initialize a blockchain object
 blockchain = BlockChain()
+blockchain.build_genesis()
 
 # Contains the host addresses of other participating members of the network
 peers = set()
@@ -50,8 +51,8 @@ def mine_unconfirmed_transactions():
         chain_length = len(blockchain.chain)
         consensus()
         if chain_length == len(blockchain.chain):
-            announce_new_block(blockchain.last_block())
-        return "Block #{} is mined.".format(blockchain.last_block().index)
+            announce_new_block(blockchain.last_block)
+        return "Block #{} is mined.".format(blockchain.last_block.index)
 
 @app.route('/pending_tx')
 def get_pending_tx():
@@ -67,7 +68,7 @@ def register_new_peers():
 
     peers.add(node_address)
 
-    return get_chain()
+    return get_chain(), 200
 
 @app.route('/register_with', methods=['POST'])
 def register_with_existing_node():
@@ -94,8 +95,10 @@ def register_with_existing_node():
         # update chain and peers
         chain_dump = response.json()['chain']
         blockchain = create_chain_from_dump(chain_dump)
-        print(response.json())
-        peers.update(response.json()['peers'])
+        peers.add(node_adress)
+        for peer in response.json()['peers']:
+            if peer != request.host_url:
+                peers.add(peer)
         return "Register successful", 200
     else:
         return response.content, response.status_code
@@ -122,28 +125,29 @@ def add_peer_block():
 def announce_new_block(block):
     ''' Announce a new mined block to all peers to the network '''
     for peer in peers:
-        url = "{}add_block".format(peer)
+        url = "{}/add_block".format(peer)
         headers = {'Content-Type': "application/json"}
         requests.post(url,
                       data=json.dumps(block.__dict__, sort_keys=True),
                       headers=headers)
 
 def create_chain_from_dump(chain_dump):
-    blockchain = BlockChain()
+    gen_blockchain = BlockChain()
+    gen_blockchain.build_genesis()
     for idx, block_data in enumerate(chain_dump):
+        if idx == 0:
+            continue # skip genesis block
         block = Block(block_data["index"],
                       block_data["transactions"],
                       block_data["timestamp"],
                       block_data["previous_hash"],
                       block_data["nonce"])
         proof = block_data['hash']
-        if idx > 0:
-            added = blockchain.add_block(block, proof)
-            if not added:
-                raise Exception("The chain dump is tampered")
-        else:
-            blockchain.chain.append(block)
-    return blockchain
+        added = gen_blockchain.add_block(block, proof)
+        if not added:
+            raise Exception("The chain dump is tampered")
+
+    return gen_blockchain
 
 
 def consensus():
@@ -157,7 +161,7 @@ def consensus():
     current_len = len(blockchain.chain)
 
     for node in peers:
-        response = requests.get('{}chain'.format(node))
+        response = requests.get('{}/chain'.format(node))
         length = response.json()['length']
         chain = response.json()['chain']
         if length > current_len and blockchain.check_chain_validity(chain):
