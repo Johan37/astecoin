@@ -57,11 +57,6 @@ class BlockChain(object):
         self.chain.append(block)
         return True
 
-    def confirm_validity(self, block, block_hash):
-        ''' Confirm the validity of a block and its predecessor '''
-        return (block_hash.startswith('0' * BlockChain.difficulty) and
-                block_hash == block.compute_hash())
-
     def add_new_transaction(self, transaction):
         self.unconfirmed_transactions.append(transaction)
 
