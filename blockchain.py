@@ -36,6 +36,10 @@ class BlockChain(object):
         for i in range(len(self.chain)):
             print(json.dumps(self.chain[i].get_json(), indent=4, sort_keys=True))
 
+    def confirm_validity(self, block, block_hash):
+        ''' Confirm the validity of a block and its predecessor '''
+        return (block_hash.startswith('0' * BlockChain.difficulty) and
+                block_hash == block.compute_hash())
     @property
     def last_block(self):
         ''' Return latest block in the Blockchain '''
@@ -56,6 +60,11 @@ class BlockChain(object):
         block.hash = proof
         self.chain.append(block)
         return True
+
+    def confirm_validity(self, block, block_hash):
+        ''' Confirm the validity of a block and its predecessor '''
+        return (block_hash.startswith('0' * BlockChain.difficulty) and
+                block_hash == block.compute_hash())
 
     def add_new_transaction(self, transaction):
         self.unconfirmed_transactions.append(transaction)
