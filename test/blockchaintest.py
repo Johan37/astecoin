@@ -9,10 +9,10 @@ class TestBlockchain(unittest.TestCase):
         _blockchain = blockchain.BlockChain()
         _blockchain.build_genesis()
         _blockchain.add_new_transaction("gold")
-        _blockchain.mine()
+        _blockchain.mine("miner007")
 
         _blockchain.print_chain()
-        _blockchain.chain_to_file()
+        #_blockchain.chain_to_file()
 
         self.assertTrue(_blockchain.check_chain_validity(_blockchain.chain))
 
