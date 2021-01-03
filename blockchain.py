@@ -69,12 +69,17 @@ class BlockChain(object):
     def add_new_transaction(self, transaction):
         self.unconfirmed_transactions.append(transaction)
 
-    def mine(self):
-        ''' 
-        Interface to add a pending transactions to the blockchain
-        '''
+    def add_reward(self, miner):
+        ''' Add reward coin to the miner of new block '''
+        reward = {"sender": "0", "reciver": miner, "amount": 1}
+        self.unconfirmed_transactions.append(reward)
+
+    def mine(self, miner):
+        ''' Interface to add a pending transactions to the blockchain '''
         if not self.unconfirmed_transactions:
             return False
+
+        self.add_reward(miner)
 
         latest_block = self.last_block
 

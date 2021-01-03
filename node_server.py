@@ -13,6 +13,10 @@ app = Flask(__name__)
 blockchain = BlockChain()
 blockchain.build_genesis()
 
+# User ID
+# TODO add account handling
+userID = "miner1337"
+
 # Contains the host addresses of other participating members of the network
 peers = set()
 
@@ -25,6 +29,10 @@ def new_transaction():
         if not tx_data.get(field):
             return "Invalid transaction data", 404
 
+    if tx_data["sender"] == "0":
+        # sender 0 is reserved for reward transactions
+        return "Sender can not be 0", 403
+    
     tx_data["timestamp"] = time.time()
 
     blockchain.add_new_transaction(tx_data)
@@ -43,7 +51,7 @@ def get_chain():
 
 @app.route('/mine', methods=['GET'])
 def mine_unconfirmed_transactions():
-    result = blockchain.mine()
+    result = blockchain.mine(userID)
     if not result:
         return "No transactions to mine"
     else:
