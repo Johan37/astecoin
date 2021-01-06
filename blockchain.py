@@ -68,7 +68,7 @@ class BlockChain(object):
         ''' Calculate an account balance '''
         balance = 0
         for block in self.chain:
-            for transaction in chain.transactions:
+            for transaction in block.transactions:
                 if transaction["recipient"] == account:
                     balance += transaction["amount"]
                 if transaction["sender"] == account:
@@ -78,7 +78,7 @@ class BlockChain(object):
 
     def add_reward(self, miner):
         ''' Add reward coin to the miner of new block '''
-        reward = {"sender": "0", "reciver": miner, "amount": 1}
+        reward = {"sender": "0", "recipient": miner, "amount": 1}
         self.unconfirmed_transactions.append(reward)
 
     def mine(self, miner):
