@@ -121,7 +121,9 @@ class BlockChain(object):
         Check if block_hash is valid hash of block and satisfies
         the difficulty criteria.
         """
-        if block.index == 0 and block_hash == block.compute_hash():
+        computed_hash = block.compute_hash()
+        print(computed_hash)
+        if block.index == 0 and block_hash == computed_hash:
             # Genesis block does not need to meet difficulty criteria
             return True
         return (block_hash.startswith('0' * BlockChain.difficulty) and
@@ -137,8 +139,12 @@ class BlockChain(object):
             #Remove the hash field to recompute hash again
             delattr(block, "hash")
 
-            if not cls.is_valid_proof(block, block_hash) or \
-                    previous_hash != block.previous_hash:
+            if not cls.is_valid_proof(block, block_hash):
+                print("ERROR not valid proof block {}".format(block.index))
+                return False
+
+            if previous_hash != block.previous_hash:
+                print("Error prevous hash != hash for block {}".format(block.index))
                 return False
 
             block.hash, previous_hash = block_hash, block_hash

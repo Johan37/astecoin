@@ -16,7 +16,6 @@ class Block(object):
         self.previous_hash = previous_hash
         self.timestamp = timestamp
         self.nonce = nonce
-        self.hash = 0
 
     def compute_hash(self):
         '''
@@ -33,7 +32,7 @@ class Block(object):
         block_dict = {
                 'index': self.index,
                 'timestamp': self.timestamp,
-                'transactins': self.transactions,
+                'transactions': self.transactions,
                 'previous_hash': self.previous_hash,
                 'hash': self.hash
                 }
