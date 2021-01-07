@@ -122,7 +122,6 @@ class BlockChain(object):
         the difficulty criteria.
         """
         computed_hash = block.compute_hash()
-        print(computed_hash)
         if block.index == 0 and block_hash == computed_hash:
             # Genesis block does not need to meet difficulty criteria
             return True
@@ -137,7 +136,7 @@ class BlockChain(object):
         for block in chain:
             block_hash = block.hash
             #Remove the hash field to recompute hash again
-            delattr(block, "hash")
+            block.hash = None
 
             if not cls.is_valid_proof(block, block_hash):
                 print("ERROR not valid proof block {}".format(block.index))

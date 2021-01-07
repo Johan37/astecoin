@@ -16,6 +16,7 @@ class Block(object):
         self.previous_hash = previous_hash
         self.timestamp = timestamp
         self.nonce = nonce
+        self.hash = None
 
     def compute_hash(self):
         '''
