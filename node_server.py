@@ -37,8 +37,32 @@ def new_transaction():
 
     blockchain.add_new_transaction(tx_data)
 
+    headers = {'Content-Type': "application/json"}
+
+    # Make a request to broadcast transactions to peers
+    for peer in peers:
+        requests.post(peer + "/broadcast_transaction",
+            data=json.dumps(tx_data), headers=headers)
+
+
     return "Success", 201
 
+@app.route('/broadcast_transaction', methods=['POST'])
+def broadcast_transaction():
+    tx_data = request.get_json()
+    required_fields = ["sender", "recipient", "amount", "timestamp"]
+
+    for field in required_fields:
+        if not tx_data.get(field):
+            return "Invalid transaction data", 404
+
+    if tx_data["sender"] == "0":
+        # sender 0 is reserved for reward transactions
+        return "Sender can not be 0", 403
+
+    blockchain.add_new_transaction(tx_data)
+
+    return "Success", 201
 
 @app.route('/chain', methods=['GET'])
 def get_chain():
@@ -128,6 +152,11 @@ def add_peer_block():
     if not added:
         return "The block was discarded by node, 400"
 
+    # Remove this nodes unconfirmed transactions that are in the new block
+    for tx in blockchain.unconfirmed_transactions:
+        if tx in block.transactions:
+            blockchain.unconfirmed_transactions.remove(tx)
+    
     return "Block added to chain", 201
 
 def announce_new_block(block):
