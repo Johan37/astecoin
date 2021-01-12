@@ -44,8 +44,7 @@ def new_transaction():
         requests.post(peer + "/broadcast_transaction",
             data=json.dumps(tx_data), headers=headers)
 
-
-    return "Success", 201
+    return "Success", 200
 
 @app.route('/broadcast_transaction', methods=['POST'])
 def broadcast_transaction():
@@ -62,7 +61,7 @@ def broadcast_transaction():
 
     blockchain.add_new_transaction(tx_data)
 
-    return "Success", 201
+    return "Success", 200
 
 @app.route('/chain', methods=['GET'])
 def get_chain():
