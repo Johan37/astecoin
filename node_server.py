@@ -123,12 +123,12 @@ def register_with_existing_node():
     if response.status_code == 200:
         global blockchain
         global peers
-        # update chain and peers
+        # Update chain and peers
         chain_dump = response.json()['chain']
         blockchain = create_chain_from_dump(chain_dump)
         peers.add(node_adress)
         for peer in response.json()['peers']:
-            if peer != request.host_url:
+            if peer != request.host_url and peer not in peers :
                 peers.add(peer)
         return "Register successful", 200
     else:
