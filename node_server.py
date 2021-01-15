@@ -156,6 +156,8 @@ def add_peer_block():
         if tx in block.transactions:
             blockchain.unconfirmed_transactions.remove(tx)
     
+    # Anounce that we have recived a new block to peers
+    
     return "Block added to chain", 201
 
 def announce_new_block(block):

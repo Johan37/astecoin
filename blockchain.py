@@ -102,6 +102,7 @@ class BlockChain(object):
     
     def chain_to_file(self):
         ''' Save blockchain to file '''
+        
         chain_dict = []
         for i in range(len(self.chain)):
             chain_dict.append(self.chain[i].get_json())
