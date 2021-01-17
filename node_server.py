@@ -8,6 +8,7 @@ from block import Block
 
 # Initialize flask aplication
 app = Flask(__name__)
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 #Initialize a blockchain object
 blockchain = BlockChain()
@@ -149,15 +150,17 @@ def add_peer_block():
     added = blockchain.add_block(block, proof)
 
     if not added:
-        return "The block was discarded by node, 400"
+        return "The block was discarded by node", 400
 
     # Remove this nodes unconfirmed transactions that are in the new block
     for tx in blockchain.unconfirmed_transactions:
         if tx in block.transactions:
             blockchain.unconfirmed_transactions.remove(tx)
     
-    # Anounce that we have recived a new block to peers
-    
+    # Anounce that we have recived a new block to peers.
+    # Peers that already have the block will discard it.
+    announce_new_block(blockchain.last_block)
+
     return "Block added to chain", 201
 
 def announce_new_block(block):
