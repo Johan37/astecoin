@@ -3,10 +3,12 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { NewTransactionComponent } from './components/new-transaction/new-transaction.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    NewTransactionComponent
   ],
   imports: [
     BrowserModule,
@@ -15,4 +17,5 @@ import { AppComponent } from './app.component';
   providers: [],
   bootstrap: [AppComponent]
 })
+
 export class AppModule { }
